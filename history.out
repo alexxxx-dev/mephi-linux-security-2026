@@ -1,0 +1,26 @@
+    1  sudo groupadd students
+    2  sudo useradd -u 1234 -g students -m -s /bin/bash user1
+    3  sudo passwd user1
+    4  sudo usermod -aG students user1
+    5  sudo chage -M 90 user1
+    6  sudo find / -perm -4000 -type f 2>/dev/null | sort | tee ~/suid_files.out
+    7  passwd
+    8  ps -eo pid,ppid,ruid,euid,comm | awk 'NR==1 || ($3>=1000 && $3<=60000 && $4==0)' | tee ~/euid_root_processes.out
+    9  sudo cp /usr/bin/cat /home/user1/cat-suid
+   10  sudo chown root:root /home/user1/cat-suid
+   11  sudo chmod 4755 /home/user1/cat-suid
+   12  sudo -u user1 /home/user1/cat-suid /etc/shadow | head -3
+   13  sudo cp /usr/bin/chown /home/user1/chown-cap
+   14  sudo setcap cap_chown=ep /home/user1/chown-cap
+   15  sudo getcap /home/user1/chown-cap
+   16  sudo touch /home/user1/owner-test2
+   17  sudo chown user1:students /home/user1/owner-test2
+   18  sudo -u user1 /home/user1/chown-cap root:root /home/user1/owner-test2
+   19  sudo sh -c 'printf "%s\n" "user1 ALL=(root) /usr/bin/timedatectl set-time *, /usr/bin/date -s *" > /etc/sudoers.d/50-user1-time'
+   20  sudo chmod 440 /etc/sudoers.d/50-user1-time
+   21  sudo visudo -cf /etc/sudoers.d/50-user1-time
+   22  stat /home/user1 > ~/stat.out
+   23  sudo stat /home/user1/cat-suid >> ~/stat.out
+   24  sudo stat /home/user1/chown-cap >> ~/stat.out
+   25  sudo getcap /home/user1/cat-suid /home/user1/chown-cap > ~/getcap.out
+   26  history > ~/history.out
